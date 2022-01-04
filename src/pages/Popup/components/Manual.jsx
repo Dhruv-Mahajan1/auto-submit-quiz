@@ -13,23 +13,40 @@ class Manual extends React.Component {
       StartTimeError: false,
       EndTimeError: false,
       SubmitDiabled: true,
+      FormLinkError: false,
+      AlarmName: '',
     };
 
     this.handlelinkChange = this.handlelinkChange.bind(this);
+    this.handleNameChange = this.handleNameChange.bind(this);
     this.handletimeChange = this.handletimeChange.bind(this);
     this.handletimeChangeending = this.handletimeChangeending.bind(this);
     this.onreset = this.onreset.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.check = this.check.bind(this);
   }
-
-  handlelinkChange(event) {
-    var link = event.target.value;
-
+  handleNameChange = async (event) => {
+    var name = event.target.value;
     this.setState({
-      formlink: link,
+      AlarmName: name,
     });
-  }
+  };
+
+  handlelinkChange = async (event) => {
+    var link = event.target.value;
+    var error = false;
+    if (
+      link.match('https://forms.gle+') === null &&
+      link.match('https://docs.google.com/forms+') === null
+    ) {
+      error = true;
+    }
+    await this.setState({
+      formlink: link,
+      FormLinkError: error,
+    });
+    this.check();
+  };
   handletimeChange = async (event) => {
     var start = event.target.value;
     var error = false;
@@ -80,6 +97,7 @@ class Manual extends React.Component {
     if (
       this.state.EndTimeError === false &&
       this.state.StartTimeError === false &&
+      this.state.FormLinkError === false &&
       this.state.ending_time !== '' &&
       this.state.starting_time !== ''
     ) {
@@ -136,6 +154,16 @@ class Manual extends React.Component {
           <Box m={1}>
             <TextField
               id="standard-basic"
+              label="Alarm Name"
+              variant="standard"
+              size="large"
+              fullWidth
+              fontSize="50"
+              value={this.state.AlarmName}
+              onChange={this.handleNameChange}
+            ></TextField>
+            <TextField
+              id="standard-basic"
               label="Form Link"
               variant="standard"
               size="large"
@@ -143,6 +171,7 @@ class Manual extends React.Component {
               fontSize="50"
               value={this.state.formlink}
               onChange={this.handlelinkChange}
+              error={this.state.FormLinkError}
             ></TextField>
           </Box>
 
@@ -173,6 +202,7 @@ class Manual extends React.Component {
                 }}
                 value={this.state.ending_time}
                 onChange={this.handletimeChangeending}
+                error={this.state.EndTimeError}
               />
             </Grid>
           </Grid>
